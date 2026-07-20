@@ -1,0 +1,14 @@
+[package]
+name = "pdfparser"
+version = "0.1.0"
+edition = "2021"
+authors = ["Antigravity"]
+description = "High performance XML-to-PDF parser and renderer using Libharu"
+
+[dependencies]
+roxmltree = "0.20"
+clap = { version = "4.5", features = ["derive"] }
+thiserror = "1.0"
+
+[build-dependencies]
+cc = "1.0"

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf page-size="A4" orientation="portrait" margin="35" font="Helvetica" size="10" color="#1e293b">
+  <page>
+    <!-- Encabezado de Factura / Reporte -->
+    <rect x="35" y="35" width="525" height="50" fill="#0f172a" stroke="#0f172a"/>
+    <text font="Helvetica-Bold" size="18" color="#ffffff" x="50" y="66">FACTURA COMERCIAL</text>
+    <text font="Helvetica" size="10" color="#94a3b8" x="430" y="66">No: FAC-2026-0089</text>
+
+    <spacer height="65"/>
+
+    <!-- Datos de Cliente y Emisor -->
+    <grid columns="260, 265" border="0" cell-padding="4" margin-bottom="15">
+      <row>
+        <cell><text font="Helvetica-Bold" color="#334155">DATOS DEL EMISOR:</text></cell>
+        <cell><text font="Helvetica-Bold" color="#334155">DATOS DEL CLIENTE:</text></cell>
+      </row>
+      <row>
+        <cell><text color="#64748b">Tech Solutions S.A. de C.V.</text></cell>
+        <cell><text color="#64748b">Corporativo Global Rust Inc.</text></cell>
+      </row>
+      <row>
+        <cell><text color="#64748b">RFC: TSO120415XYZ</text></cell>
+        <cell><text color="#64748b">RFC: CGR980101ABC</text></cell>
+      </row>
+      <row>
+        <cell><text color="#64748b">Av. de la Tecnología #100, CDMX</text></cell>
+        <cell><text color="#64748b">Silicon Avenue #500, California</text></cell>
+      </row>
+    </grid>
+
+    <line x1="35" y1="170" x2="560" y2="170" color="#cbd5e1" width="1.0"/>
+    <spacer height="15"/>
+
+    <!-- Descripción general -->
+    <paragraph font="Helvetica" size="10" color="#475569" margin-bottom="15">
+      A continuación se detalla la lista de productos y servicios de software de alto rendimiento procesados mediante la biblioteca Libharu y el ejecutable compilado en Rust.
+    </paragraph>
+
+    <!-- Grilla de Detalle de Factura -->
+    <grid columns="80, 245, 60, 60, 80" border="1" border-color="#cbd5e1" cell-padding="6" margin-bottom="20">
+      <row background="#1e293b" bold="true">
+        <cell align="center"><text color="#ffffff">Código</text></cell>
+        <cell><text color="#ffffff">Descripción del Servicio</text></cell>
+        <cell align="center"><text color="#ffffff">Cant.</text></cell>
+        <cell align="right"><text color="#ffffff">Precio</text></cell>
+        <cell align="right"><text color="#ffffff">Total</text></cell>
+      </row>
+      <row background="#f8fafc">
+        <cell align="center"><text>PDF-01</text></cell>
+        <cell><text>Motor de Renderizado XML a PDF en Rust</text></cell>
+        <cell align="center"><text>1</text></cell>
+        <cell align="right"><text>$ 1,500.00</text></cell>
+        <cell align="right"><text>$ 1,500.00</text></cell>
+      </row>
+      <row>
+        <cell align="center"><text>LIB-02</text></cell>
+        <cell><text>Integración Estática Libharu C FFI</text></cell>
+        <cell align="center"><text>1</text></cell>
+        <cell align="right"><text>$ 850.00</text></cell>
+        <cell align="right"><text>$ 850.00</text></cell>
+      </row>
+      <row background="#f8fafc">
+        <cell align="center"><text>OPT-03</text></cell>
+        <cell><text>Optimización de Grillas y Fuentes TTF</text></cell>
+        <cell align="center"><text>2</text></cell>
+        <cell align="right"><text>$ 300.00</text></cell>
+        <cell align="right"><text>$ 600.00</text></cell>
+      </row>
+      <row>
+        <cell align="center"><text>SUP-04</text></cell>
+        <cell><text>Soporte de Entrada y Salida Estándar (std)</text></cell>
+        <cell align="center"><text>1</text></cell>
+        <cell align="right"><text>$ 400.00</text></cell>
+        <cell align="right"><text>$ 400.00</text></cell>
+      </row>
+    </grid>
+
+    <!-- Resumen de Totales -->
+    <grid columns="345, 100, 80" border="0" cell-padding="4" margin-bottom="25">
+      <row>
+        <cell><text></text></cell>
+        <cell align="right"><text font="Helvetica-Bold" color="#475569">Subtotal:</text></cell>
+        <cell align="right"><text color="#1e293b">$ 3,350.00</text></cell>
+      </row>
+      <row>
+        <cell><text></text></cell>
+        <cell align="right"><text font="Helvetica-Bold" color="#475569">I.V.A. (16%):</text></cell>
+        <cell align="right"><text color="#1e293b">$ 536.00</text></cell>
+      </row>
+      <row background="#f1f5f9">
+        <cell><text></text></cell>
+        <cell align="right"><text font="Helvetica-Bold" size="12" color="#0f172a">TOTAL:</text></cell>
+        <cell align="right"><text font="Helvetica-Bold" size="12" color="#0f172a">$ 3,886.00</text></cell>
+      </row>
+    </grid>
+
+    <!-- Pie de página / Términos -->
+    <line x1="35" y1="760" x2="560" y2="760" color="#cbd5e1" width="1.0"/>
+    <text font="Helvetica-Oblique" size="8" color="#94a3b8" align="center" x="150" y="780">
+      Este documento es una representación impresa de un comprobante emitido vía XML/Rust.
+    </text>
+  </page>
+</pdf>

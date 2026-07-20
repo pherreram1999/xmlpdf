@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf page-size="A4" orientation="portrait" margin="35" font="Helvetica" size="12" color="#0f172a">
+  <page>
+    <text font="Helvetica-Bold" size="18" color="#1e3a8a">PRUEBA DE CARACTERES CON ACENTOS Y ESPAÑOL</text>
+    <line x1="35" y1="55" x2="560" y2="55" color="#cbd5e1" width="1.0"/>
+    <spacer height="30"/>
+
+    <paragraph font="Helvetica" size="12" color="#334155" margin-bottom="15">
+      ¡Hola! Esta es una prueba del generador de PDF procesando caracteres en español:
+      á, é, í, ó, ú, ñ, Á, É, Í, Ó, Ú, Ñ, ¿apéndices?, ¡éxito!, cancíón, navegación, versión.
+    </paragraph>
+
+    <grid columns="120, 200, 150" border="1" border-color="#94a3b8" cell-padding="6" margin-bottom="20">
+      <row background="#e2e8f0" bold="true">
+        <cell><text>Código</text></cell>
+        <cell><text>Descripción</text></cell>
+        <cell><text>Términos &amp; Condición</text></cell>
+      </row>
+      <row>
+        <cell><text>ESP-01</text></cell>
+        <cell><text>Validación de Acentuación</text></cell>
+        <cell><text>Válido y Aprobado</text></cell>
+      </row>
+      <row>
+        <cell><text>ESP-02</text></cell>
+        <cell><text>Generación de Información</text></cell>
+        <cell><text>Garantía de Configuración</text></cell>
+      </row>
+    </grid>
+  </page>
+</pdf>

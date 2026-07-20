@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf page-size="A4" orientation="portrait" margin="35" font="Helvetica" size="10" color="#1e293b">
+  <style>
+    .header-box {
+      background-color: #0f172a;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+      border-width: 1px;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 15px;
+    }
+    .badge {
+      font-family: Helvetica-Bold;
+      font-size: 9px;
+      color: #1e40af;
+    }
+  </style>
+
+  <page>
+    <!-- Contenedor div tipo Tarjeta Web con CSS -->
+    <div class="header-box">
+      <text font="Helvetica-Bold" size="18" color="#ffffff">PANEL DE CONTROL WEB &amp; PDF</text>
+      <spacer height="6"/>
+      <text color="#94a3b8" size="10">Diseño estilizado usando sintaxis de CSS inline y hojas de estilo</text>
+    </div>
+
+    <!-- Contenedor div estilizado con bordes redondeados y padding -->
+    <div class="card">
+      <text font="Helvetica-Bold" size="14" color="#1e3a8a">Resumen de Métricas</text>
+      <spacer height="8"/>
+      <paragraph color="#475569" size="10" align="justify">
+        Este documento demuestra la capacidad del motor en Rust para procesar etiquetas &lt;div&gt; contenedoras, esquinas redondeadas (border-radius), rellenos (padding) y hojas de estilo CSS.
+      </paragraph>
+    </div>
+
+    <!-- Grilla con celdas redondeadas y estilos CSS -->
+    <grid columns="120, 240, 115" border="1" border-color="#e2e8f0" cell-padding="6" margin-bottom="15">
+      <row background="#1e293b" bold="true">
+        <cell><text color="#ffffff">Módulo</text></cell>
+        <cell><text color="#ffffff">Características CSS Soportadas</text></cell>
+        <cell align="center"><text color="#ffffff">Estado</text></cell>
+      </row>
+      <row background="#f8fafc">
+        <cell><text>Etiquetas &lt;div&gt;</text></cell>
+        <cell><text>Contenedores flex/box con padding y margin</text></cell>
+        <cell align="center" background="#dcfce7"><text color="#166534">Activo</text></cell>
+      </row>
+      <row>
+        <cell><text>Border Radius</text></cell>
+        <cell><text>Esquinas redondeadas suaves (rx / ry)</text></cell>
+        <cell align="center" background="#dcfce7"><text color="#166534">Activo</text></cell>
+      </row>
+      <row background="#f8fafc">
+        <cell><text>Estilos CSS</text></cell>
+        <cell><text>Atributo style="..." y bloques &lt;style&gt;</text></cell>
+        <cell align="center" background="#dcfce7"><text color="#166534">Activo</text></cell>
+      </row>
+    </grid>
+  </page>
+</pdf>
