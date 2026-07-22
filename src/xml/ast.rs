@@ -162,7 +162,11 @@ pub enum Element {
 pub struct PageDef {
     pub page_size: Option<String>,
     pub orientation: Option<String>,
-    pub margin: Option<f32>,
+    pub margin_top: Option<f32>,
+    pub margin_bottom: Option<f32>,
+    pub margin_left: Option<f32>,
+    pub margin_right: Option<f32>,
+    pub background_image: Option<String>,
     pub elements: Vec<Element>,
 }
 
@@ -170,10 +174,14 @@ pub struct PageDef {
 pub struct PdfDocumentAST {
     pub default_page_size: String,
     pub default_orientation: String,
-    pub default_margin: f32,
+    pub default_margin_top: f32,
+    pub default_margin_bottom: f32,
+    pub default_margin_left: f32,
+    pub default_margin_right: f32,
     pub default_font: String,
     pub default_size: f32,
     pub default_color: ColorRGB,
+    pub default_background_image: Option<String>,
     pub fonts: Vec<FontDef>,
     pub pages: Vec<PageDef>,
 }

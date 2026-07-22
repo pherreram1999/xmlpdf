@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf page-size="A4" orientation="portrait" margin="35" font="Helvetica" size="10" color="#1e293b">
+  <style>
+    .titulo {
+      font-family: Helvetica-Bold;
+      font-size: 16px;
+      color: #1e3a8a;
+    }
+    .subtitulo {
+      font-family: Helvetica-Bold;
+      font-size: 12px;
+      color: #334155;
+    }
+    .tarjeta {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+      border-width: 1px;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 15px;
+    }
+  </style>
+
+  <page>
+    <!-- SECCION 1: Prueba de espaciado entre parrafos -->
+    <text class="titulo">PRUEBA 1: Espaciado entre parrafos</text>
+    <spacer height="10"/>
+
+    <text class="subtitulo">Parrafo corto (1 linea):</text>
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Este es un parrafo corto de una sola linea.
+    </paragraph>
+
+    <text class="subtitulo">Parrafo mediano (2-3 lineas):</text>
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Este es un parrafo de longitud media que deberia ocupar entre dos y tres lineas en una hoja A4 con margenes de 35 puntos. El espaciado deberia ser uniforme.
+    </paragraph>
+
+    <text class="subtitulo">Parrafo largo (4-6 lineas):</text>
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Este es un parrafo largo que deberia ocupar entre cuatro y seis lineas en una hoja A4 con margenes de 35 puntos. Estamos probando que el espaciado entre este parrafo y el siguiente sea uniforme, sin importar la cantidad de lineas. El problema original era que parrafos mas largos creaban separaciones cada vez mas grandes con el siguiente elemento.
+    </paragraph>
+
+    <text class="subtitulo">Otro parrafo largo (4-6 lineas):</text>
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Aqui tenemos otro parrafo largo para verificar que la separacion entre parrafos consecutivos sea consistente. La correccion implementada utiliza medicion real del ancho de texto mediante la API de Libharu en lugar de una estimacion heuristica basada en la cantidad de bytes del contenido del parrafo dividido entre una constante magica.
+    </paragraph>
+
+    <text class="subtitulo">Parrafo muy largo (8+ lineas):</text>
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Este parrafo es deliberadamente extenso para probar el caso extremo. Contiene suficiente texto para ocupar muchas lineas y verificar que el espaciado final sigue siendo correcto. En la version anterior del codigo, la estimacion de altura usaba la formula content.len() dividido entre 50, lo cual no tenia relacion con el ancho real del area imprimible, el tamano de fuente, ni la fuente utilizada. Ademas, se agregaba un padding extra de 20 puntos al rectangulo de texto que no se reflejaba en el avance del cursor. Esto causaba una divergencia creciente entre la altura estimada y la real. Ahora el calculo usa medicion real palabra por palabra.
+    </paragraph>
+
+    <line x1="35" y1="600" x2="560" y2="600" color="#cbd5e1" width="1.0"/>
+
+    <!-- SECCION 2: Prueba de desbordamiento / auto page-break -->
+    <text class="titulo">PRUEBA 2: Auto page-break (desbordamiento)</text>
+    <spacer height="10"/>
+
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      A partir de aqui, el contenido deberia continuar automaticamente en nuevas paginas sin necesidad de usar page-break manual. El texto que sigue a continuacion esta disenado para llenar multiples paginas.
+    </paragraph>
+
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </paragraph>
+
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula ut dictum pharetra, nisi nunc fringilla magna, in commodo elit erat nec turpis. Ut pharetra augue nec augue. Nam elit magna, hendrerit sit amet, tincidunt ac, viverra sed, nulla. Donec porta diam eu massa. Quisque diam lorem, interdum vitae, dapibus ac, scelerisque vitae, pede.
+    </paragraph>
+
+    <text class="subtitulo">Mas texto para forzar nueva pagina:</text>
+    <spacer height="10"/>
+
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Mauris ac felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor. Nam euismod tellus id erat. Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+    </paragraph>
+
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Pellentesque dapibus suscipit ligula. Donec posuere augue in quam. Etiam vel tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac leo mollis blandit. Donec neque quam, dignissim in, mollis nec, sagittis eu, wisi. Phasellus lacus. Etiam laoreet quam sed arcu. Phasellus at dui in ligula mollis ultricies. Integer placerat tristique nisl. Praesent augue. Fusce commodo. Vestibulum convallis, lorem a tempus semper, dui dui euismod elit, vitae placerat urna tortor vitae lacus.
+    </paragraph>
+
+    <paragraph color="#475569" align="justify" margin-bottom="10">
+      Este es el parrafo final de la prueba. Si este texto aparece correctamente en una nueva pagina sin cortarse ni salirse de los bordes, ambos bugs han sido corregidos exitosamente. La solucion implementa medicion real de texto mediante HPDF_Page_TextWidth y salto de pagina automatico cuando el contenido excede el area imprimible.
+    </paragraph>
+
+    <text font="Helvetica-Oblique" size="8" color="#94a3b8" align="center">
+      Fin del documento de prueba - generado para validar correcciones de pdfparser.
+    </text>
+  </page>
+</pdf>

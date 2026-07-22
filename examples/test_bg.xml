@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf background-image="examples/bg.jpg">
+  <page>
+    <paragraph font-size="24" margin-bottom="30">
+      This is the first page. It should have the blue background.
+    </paragraph>
+    <paragraph font-size="14" margin-bottom="10">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam non orci ac lectus fermentum ullamcorper. Phasellus et nunc ac odio suscipit auctor sit amet tristique leo. Curabitur sed dolor ullamcorper, luctus diam eget, posuere lacus. Aenean ac enim vel diam feugiat fringilla vel ac arcu. Nunc ullamcorper, justo nec faucibus scelerisque, sapien lorem fermentum magna, sit amet iaculis dolor mi non turpis. Sed sollicitudin neque ex, a viverra metus bibendum a. Fusce ac lectus felis. Praesent at lacus quis diam feugiat molestie vitae quis libero. Sed aliquet est in lorem tristique dignissim. Suspendisse pulvinar odio vel arcu pharetra commodo.
+    </paragraph>
+    <paragraph font-size="14" margin-bottom="10">
+      Aliquam vulputate tristique tellus non venenatis. Quisque porta nunc id iaculis rutrum. Donec finibus, magna id fermentum sodales, nisl felis mattis metus, vulputate posuere arcu mauris eget tortor. Maecenas vel lorem ac lacus ultrices rhoncus vitae vel massa. Aenean vel nibh ac libero ullamcorper accumsan vel eu turpis. Etiam in mi eros. Nulla pulvinar ut justo elementum dictum. Nullam fringilla interdum urna, eget feugiat urna hendrerit id. Nam non sapien purus. In finibus tellus a augue volutpat elementum. Phasellus hendrerit nunc ac enim tempor pretium. Mauris facilisis vel sapien at euismod. Suspendisse ex lacus, posuere id magna sed, posuere imperdiet urna. Sed a accumsan eros. Phasellus tristique in neque aliquet pretium. Nulla id diam tristique nisl fermentum convallis ac vel ligula.
+    </paragraph>
+    <paragraph font-size="14" margin-bottom="10">
+      Mauris cursus augue ac nunc interdum tristique. Mauris elementum ut quam vel finibus. In hac habitasse platea dictumst. Morbi pretium varius elementum. Quisque facilisis odio sed dolor lobortis gravida. Nulla at mi eu est venenatis fermentum pretium non neque. Mauris sollicitudin elit elit, congue porta nibh porta accumsan. Quisque in sem felis. Sed mattis libero lorem, id viverra tortor vulputate eget. Cras congue sapien nec augue faucibus molestie. Phasellus finibus egestas eros at consequat. Etiam feugiat, velit eget pulvinar varius, risus tellus dapibus libero, ut accumsan tortor lacus at nibh. Ut imperdiet interdum lacus scelerisque sodales. Nunc feugiat nisi ut nibh condimentum commodo. Nam molestie augue nulla. Aliquam vel accumsan elit.
+    </paragraph>
+    <paragraph font-size="14" margin-bottom="10">
+      Donec facilisis in dui a pulvinar. Nunc non orci sit amet magna laoreet dapibus id sit amet dui. Maecenas non iaculis massa. Ut sed leo finibus velit rhoncus lacinia non pretium justo. Nulla euismod vel libero quis posuere. Proin vulputate massa tortor, quis fermentum neque auctor at. Pellentesque tempor risus lorem, eleifend gravida metus vehicula sed. Praesent bibendum id elit sodales tempor. Vestibulum posuere scelerisque tincidunt. In ultrices elit mi, sed posuere ipsum interdum non. Nunc tempor est nec nulla cursus ultricies. Integer consequat odio eros, ut consequat lectus molestie in. In laoreet massa ut neque porta, laoreet suscipit enim bibendum. Nulla rhoncus metus vel nisi faucibus dictum. Nulla efficitur a turpis vitae rhoncus. Aliquam feugiat mi eu quam imperdiet, at congue mauris iaculis.
+    </paragraph>
+    <paragraph font-size="14" margin-bottom="10">
+      Ut consequat metus eget augue ullamcorper porttitor. In semper ex felis, laoreet commodo libero euismod at. Morbi elementum enim magna. Vivamus euismod sit amet mi at sodales. Sed interdum risus in sem tempor dictum. Nullam sed lacus eros. Nam tincidunt magna urna, condimentum rhoncus metus cursus eu. Quisque egestas mauris augue. Suspendisse eu odio nisl. Mauris ac mi metus. Aenean in arcu vitae ante faucibus pulvinar non eu odio. Vivamus pretium vel ligula ut pulvinar.
+    </paragraph>
+  </page>
+</pdf>

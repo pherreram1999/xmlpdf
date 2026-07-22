@@ -1,9 +1,18 @@
-use crate::haru::{HaruDocument, HaruPage, HPDF_TextAlignment};
+use crate::haru::{FontHandle, HaruDocument, HaruPage, HPDF_TextAlignment};
 use crate::xml::ast::*;
+
+#[derive(Clone, Copy)]
+pub struct Margins {
+    pub top: f32,
+    pub bottom: f32,
+    pub left: f32,
+    pub right: f32,
+}
 
 pub struct LayoutEngine {
     doc: HaruDocument,
     ast: PdfDocumentAST,
+    current_bg: Option<String>,
 }
 
 impl LayoutEngine {
@@ -17,7 +26,7 @@ impl LayoutEngine {
             }
         }
 
-        Ok(Self { doc, ast })
+        Ok(Self { doc, ast, current_bg: None })
     }
 
     pub fn render(mut self) -> Result<Vec<u8>, String> {
@@ -39,22 +48,31 @@ impl LayoutEngine {
             .as_ref()
             .unwrap_or(&self.ast.default_orientation);
 
-        let margin = page_def.margin.unwrap_or(self.ast.default_margin);
+        let margins = Margins {
+            top: page_def.margin_top.unwrap_or(self.ast.default_margin_top),
+            bottom: page_def.margin_bottom.unwrap_or(self.ast.default_margin_bottom),
+            left: page_def.margin_left.unwrap_or(self.ast.default_margin_left),
+            right: page_def.margin_right.unwrap_or(self.ast.default_margin_right),
+        };
 
         let (page_width, page_height) = get_page_dimensions(page_size_str, orientation_str);
 
         let mut page = self.doc.add_page();
         page.set_dimensions(page_width, page_height);
+        
+        self.current_bg = page_def.background_image.clone()
+            .or_else(|| self.ast.default_background_image.clone());
+        self.draw_page_background(&mut page, page_width, page_height);
 
-        let mut cursor_top_y = margin;
-        let printable_width = page_width - (2.0 * margin);
+        let mut cursor_top_y = margins.top;
+        let printable_width = page_width - margins.left - margins.right;
 
         for element in &page_def.elements {
             self.render_element(
                 &mut page,
                 element,
                 &mut cursor_top_y,
-                margin,
+                margins,
                 printable_width,
                 page_height,
             )?;
@@ -68,20 +86,25 @@ impl LayoutEngine {
         page: &mut HaruPage,
         element: &Element,
         cursor_top_y: &mut f32,
-        margin: f32,
+        margins: Margins,
         printable_width: f32,
         page_height: f32,
     ) -> Result<(), String> {
         match element {
             Element::Text(text_elem) => {
-                self.render_text(page, text_elem, cursor_top_y, margin, page_height)?;
+                // Auto page-break for flow-positioned text
+                if text_elem.x.is_none() && text_elem.y.is_none() {
+                    let font_size = text_elem.size.unwrap_or(self.ast.default_size);
+                    self.check_page_overflow(page, cursor_top_y, font_size + 4.0, margins, printable_width, page_height);
+                }
+                self.render_text(page, text_elem, cursor_top_y, margins, printable_width, page_height)?;
             }
             Element::Paragraph(para_elem) => {
                 self.render_paragraph(
                     page,
                     para_elem,
                     cursor_top_y,
-                    margin,
+                    margins,
                     printable_width,
                     page_height,
                 )?;
@@ -93,14 +116,18 @@ impl LayoutEngine {
                 self.render_line(page, line_elem, page_height);
             }
             Element::Image(img_elem) => {
-                self.render_image(page, img_elem, cursor_top_y, margin, page_height);
+                // Auto page-break for flow-positioned images
+                if img_elem.y.is_none() {
+                    self.check_page_overflow(page, cursor_top_y, img_elem.height + 10.0, margins, printable_width, page_height);
+                }
+                self.render_image(page, img_elem, cursor_top_y, margins, page_height);
             }
             Element::Grid(grid_elem) => {
                 self.render_grid(
                     page,
                     grid_elem,
                     cursor_top_y,
-                    margin,
+                    margins,
                     printable_width,
                     page_height,
                 )?;
@@ -110,18 +137,25 @@ impl LayoutEngine {
                     page,
                     div_elem,
                     cursor_top_y,
-                    margin,
+                    margins,
                     printable_width,
                     page_height,
                 )?;
             }
             Element::Spacer(height) => {
-                *cursor_top_y += height;
+                // Auto page-break: skip spacer if it would overflow
+                if *cursor_top_y + height > page_height - margins.bottom {
+                    self.auto_page_break(page, cursor_top_y, margins, printable_width, page_height);
+                } else {
+                    *cursor_top_y += height;
+                }
             }
             Element::PageBreak => {
                 *page = self.doc.add_page();
-                page.set_dimensions(printable_width + 2.0 * margin, page_height);
-                *cursor_top_y = margin;
+                let page_width = printable_width + margins.left + margins.right;
+                page.set_dimensions(page_width, page_height);
+                self.draw_page_background(page, page_width, page_height);
+                *cursor_top_y = margins.top;
             }
         }
         Ok(())
@@ -132,7 +166,7 @@ impl LayoutEngine {
         page: &mut HaruPage,
         div: &DivElement,
         cursor_top_y: &mut f32,
-        margin: f32,
+        margins: Margins,
         printable_width: f32,
         page_height: f32,
     ) -> Result<(), String> {
@@ -145,7 +179,9 @@ impl LayoutEngine {
 
         let start_y = *cursor_top_y;
         let mut inner_cursor_y = start_y + padding;
-        let inner_margin = margin + padding;
+        let mut inner_margins = margins;
+        inner_margins.left += padding;
+        inner_margins.right += padding;
         let inner_printable_width = box_w - (2.0 * padding);
 
         for child in &div.children {
@@ -153,7 +189,7 @@ impl LayoutEngine {
                 page,
                 child,
                 &mut inner_cursor_y,
-                inner_margin,
+                inner_margins,
                 inner_printable_width,
                 page_height,
             )?;
@@ -174,7 +210,7 @@ impl LayoutEngine {
 
         if div.border_radius > 0.0 {
             page.draw_rounded_rectangle(
-                margin,
+                margins.left,
                 pdf_y,
                 box_w,
                 box_h,
@@ -184,7 +220,7 @@ impl LayoutEngine {
             );
         } else if div.background.is_some() || div.border_color.is_some() {
             page.draw_rectangle(
-                margin,
+                margins.left,
                 pdf_y,
                 box_w,
                 box_h,
@@ -202,7 +238,8 @@ impl LayoutEngine {
         page: &mut HaruPage,
         text_elem: &TextElement,
         cursor_top_y: &mut f32,
-        margin: f32,
+        margins: Margins,
+        printable_width: f32,
         page_height: f32,
     ) -> Result<(), String> {
         let font_name = text_elem
@@ -220,10 +257,10 @@ impl LayoutEngine {
             page.draw_text(abs_x, pdf_y, &font_handle, font_size, &text_elem.content);
         } else {
             let x = match text_elem.align {
-                Align::Left => margin,
-                Align::Center => margin + ((page_height - 2.0 * margin) / 2.0),
-                Align::Right => page_height - margin - 100.0,
-                Align::Justify => margin,
+                Align::Left => margins.left,
+                Align::Center => margins.left + (printable_width / 2.0),
+                Align::Right => margins.left + printable_width - 100.0,
+                Align::Justify => margins.left,
             };
             let pdf_y = page_height - *cursor_top_y - font_size;
             page.draw_text(x, pdf_y, &font_handle, font_size, &text_elem.content);
@@ -238,7 +275,7 @@ impl LayoutEngine {
         page: &mut HaruPage,
         para_elem: &ParagraphElement,
         cursor_top_y: &mut f32,
-        margin: f32,
+        margins: Margins,
         printable_width: f32,
         page_height: f32,
     ) -> Result<(), String> {
@@ -249,8 +286,7 @@ impl LayoutEngine {
         let font_size = para_elem.size.unwrap_or(self.ast.default_size);
         let font_handle = self.doc.get_font(font_name)?;
 
-        let color = para_elem.color.as_ref().unwrap_or(&self.ast.default_color);
-        page.set_fill_color(color.r, color.g, color.b);
+        let color = para_elem.color.clone().unwrap_or_else(|| self.ast.default_color.clone());
 
         let line_height = para_elem.line_height.unwrap_or(font_size * 1.3);
         let align = match para_elem.align {
@@ -260,27 +296,180 @@ impl LayoutEngine {
             Align::Justify => HPDF_TextAlignment::Justify,
         };
 
-        let est_lines = (para_elem.content.len() as f32 / 50.0).max(1.0);
-        let est_height = est_lines * line_height;
+        let mut remaining_text = para_elem.content.clone();
 
-        let left = margin;
-        let top = page_height - *cursor_top_y;
-        let right = margin + printable_width;
-        let bottom = top - est_height - 20.0;
+        page.set_fill_color(color.r, color.g, color.b);
 
-        page.draw_text_rect(
-            left,
-            top,
-            right,
-            bottom,
-            &font_handle,
-            font_size,
-            &para_elem.content,
-            align,
-        );
+        while !remaining_text.trim().is_empty() {
+            let available_height = (page_height - margins.bottom) - *cursor_top_y;
 
-        *cursor_top_y += est_height + para_elem.margin_bottom;
+            // If less than one line fits, break to next page
+            if available_height < line_height {
+                self.auto_page_break(page, cursor_top_y, margins, printable_width, page_height);
+                page.set_fill_color(color.r, color.g, color.b);
+                continue;
+            }
+
+            // Measure how many lines the remaining text needs
+            let num_lines = self.measure_text_lines(
+                page, &remaining_text, &font_handle, font_size, printable_width,
+            );
+            let total_height = num_lines as f32 * line_height;
+
+            let left = margins.left;
+            let top = page_height - *cursor_top_y;
+            let right = margins.left + printable_width;
+
+            if total_height <= available_height {
+                // Entire remaining text fits on this page
+                let bottom = top - total_height;
+                page.draw_text_rect(
+                    left, top, right, bottom,
+                    &font_handle, font_size, &remaining_text, align,
+                );
+                *cursor_top_y += total_height + para_elem.margin_bottom;
+                break;
+            } else {
+                // Only part fits — split at line boundary
+                let max_lines = (available_height / line_height).floor() as usize;
+                if max_lines == 0 {
+                    self.auto_page_break(page, cursor_top_y, margins, printable_width, page_height);
+                    page.set_fill_color(color.r, color.g, color.b);
+                    continue;
+                }
+
+                let (fitting_text, rest) = self.split_text_at_lines(
+                    page, &remaining_text, &font_handle, font_size, printable_width, max_lines,
+                );
+
+                let used_height = max_lines as f32 * line_height;
+                let bottom = top - used_height;
+                page.draw_text_rect(
+                    left, top, right, bottom,
+                    &font_handle, font_size, &fitting_text, align,
+                );
+
+                remaining_text = rest;
+
+                // Move to next page for remaining text
+                self.auto_page_break(page, cursor_top_y, margins, printable_width, page_height);
+                page.set_fill_color(color.r, color.g, color.b);
+            }
+        }
+
         Ok(())
+    }
+
+    fn auto_page_break(
+        &mut self,
+        page: &mut HaruPage,
+        cursor_top_y: &mut f32,
+        margins: Margins,
+        printable_width: f32,
+        page_height: f32,
+    ) {
+        *page = self.doc.add_page();
+        let page_width = printable_width + margins.left + margins.right;
+        page.set_dimensions(page_width, page_height);
+        self.draw_page_background(page, page_width, page_height);
+        *cursor_top_y = margins.top;
+    }
+
+    fn draw_page_background(&mut self, page: &mut HaruPage, page_width: f32, page_height: f32) {
+        if let Some(bg_path) = &self.current_bg {
+            let bg_path_clone = bg_path.clone();
+            if let Ok(img) = self.doc.load_jpeg_image(&bg_path_clone) {
+                page.draw_image(img, 0.0, 0.0, page_width, page_height);
+            } else {
+                eprintln!("[Warning] Could not load background image: {}", bg_path_clone);
+            }
+        }
+    }
+
+    fn check_page_overflow(
+        &mut self,
+        page: &mut HaruPage,
+        cursor_top_y: &mut f32,
+        needed_height: f32,
+        margins: Margins,
+        printable_width: f32,
+        page_height: f32,
+    ) {
+        if *cursor_top_y + needed_height > page_height - margins.bottom {
+            self.auto_page_break(page, cursor_top_y, margins, printable_width, page_height);
+        }
+    }
+
+    fn measure_text_lines(
+        &self,
+        page: &HaruPage,
+        text: &str,
+        font_handle: &FontHandle,
+        font_size: f32,
+        available_width: f32,
+    ) -> usize {
+        let words: Vec<&str> = text.split_whitespace().collect();
+        if words.is_empty() {
+            return 1;
+        }
+
+        let space_width = page.measure_text_width(font_handle, font_size, " ");
+        let mut lines = 1usize;
+        let mut current_line_width = 0.0f32;
+
+        for word in &words {
+            let word_width = page.measure_text_width(font_handle, font_size, word);
+
+            if current_line_width == 0.0 {
+                current_line_width = word_width;
+            } else if current_line_width + space_width + word_width <= available_width {
+                current_line_width += space_width + word_width;
+            } else {
+                lines += 1;
+                current_line_width = word_width;
+            }
+        }
+
+        lines
+    }
+
+    fn split_text_at_lines(
+        &self,
+        page: &HaruPage,
+        text: &str,
+        font_handle: &FontHandle,
+        font_size: f32,
+        available_width: f32,
+        max_lines: usize,
+    ) -> (String, String) {
+        let words: Vec<&str> = text.split_whitespace().collect();
+        if words.is_empty() {
+            return (String::new(), String::new());
+        }
+
+        let space_width = page.measure_text_width(font_handle, font_size, " ");
+        let mut lines = 1usize;
+        let mut current_line_width = 0.0f32;
+
+        for (i, word) in words.iter().enumerate() {
+            let word_width = page.measure_text_width(font_handle, font_size, word);
+
+            if current_line_width == 0.0 {
+                current_line_width = word_width;
+            } else if current_line_width + space_width + word_width <= available_width {
+                current_line_width += space_width + word_width;
+            } else {
+                lines += 1;
+                if lines > max_lines {
+                    let fits = words[..i].join(" ");
+                    let remaining = words[i..].join(" ");
+                    return (fits, remaining);
+                }
+                current_line_width = word_width;
+            }
+        }
+
+        (text.to_string(), String::new())
     }
 
     fn render_rect(&self, page: &HaruPage, rect: &RectElement, page_height: f32) {
@@ -335,11 +524,11 @@ impl LayoutEngine {
         page: &mut HaruPage,
         img_elem: &ImageElement,
         cursor_top_y: &mut f32,
-        margin: f32,
+        margins: Margins,
         page_height: f32,
     ) {
         if let Ok(img) = self.doc.load_jpeg_image(&img_elem.src) {
-            let x = img_elem.x.unwrap_or(margin);
+            let x = img_elem.x.unwrap_or(margins.left);
             let top_y = img_elem.y.unwrap_or(*cursor_top_y);
             let pdf_y = page_height - top_y - img_elem.height;
 
@@ -358,7 +547,7 @@ impl LayoutEngine {
         page: &mut HaruPage,
         grid: &GridElement,
         cursor_top_y: &mut f32,
-        margin: f32,
+        margins: Margins,
         printable_width: f32,
         page_height: f32,
     ) -> Result<(), String> {
@@ -383,7 +572,7 @@ impl LayoutEngine {
             let font_size = row.size.unwrap_or(self.ast.default_size);
 
             let row_height = font_size + (grid.cell_padding * 2.0) + 4.0;
-            let mut col_x = margin;
+            let mut col_x = margins.left;
 
             for (col_idx, cell) in row.cells.iter().enumerate() {
                 let cell_w = cell.width.unwrap_or_else(|| {

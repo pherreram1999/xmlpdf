@@ -35,7 +35,10 @@ pub fn parse_xml_pdf(xml_content: &str) -> Result<PdfDocumentAST, XmlParseError>
 
     let default_page_size = root.attribute("page-size").unwrap_or("A4").to_string();
     let default_orientation = root.attribute("orientation").unwrap_or("portrait").to_string();
-    let default_margin = parse_f32_attr(&root, "margin").unwrap_or(30.0);
+    let default_margin_top = parse_f32_attr(&root, "margin-top").or_else(|| parse_f32_attr(&root, "margin")).unwrap_or(30.0);
+    let default_margin_bottom = parse_f32_attr(&root, "margin-bottom").or_else(|| parse_f32_attr(&root, "margin")).unwrap_or(30.0);
+    let default_margin_left = parse_f32_attr(&root, "margin-left").or_else(|| parse_f32_attr(&root, "margin")).unwrap_or(30.0);
+    let default_margin_right = parse_f32_attr(&root, "margin-right").or_else(|| parse_f32_attr(&root, "margin")).unwrap_or(30.0);
 
     let default_font = root_style
         .font_family
@@ -52,6 +55,8 @@ pub fn parse_xml_pdf(xml_content: &str) -> Result<PdfDocumentAST, XmlParseError>
         .color
         .or_else(|| parse_color_attr(&root, "color"))
         .unwrap_or_else(ColorRGB::black);
+
+    let default_background_image = root.attribute("background-image").map(|s| s.to_string());
 
     let mut fonts = Vec::new();
     let mut pages = Vec::new();
@@ -94,7 +99,11 @@ pub fn parse_xml_pdf(xml_content: &str) -> Result<PdfDocumentAST, XmlParseError>
         pages.push(PageDef {
             page_size: None,
             orientation: None,
-            margin: None,
+            margin_top: None,
+            margin_bottom: None,
+            margin_left: None,
+            margin_right: None,
+            background_image: None,
             elements: implicit_elements,
         });
     }
@@ -102,10 +111,14 @@ pub fn parse_xml_pdf(xml_content: &str) -> Result<PdfDocumentAST, XmlParseError>
     Ok(PdfDocumentAST {
         default_page_size,
         default_orientation,
-        default_margin,
+        default_margin_top,
+        default_margin_bottom,
+        default_margin_left,
+        default_margin_right,
         default_font,
         default_size,
         default_color,
+        default_background_image,
         fonts,
         pages,
     })
@@ -114,7 +127,11 @@ pub fn parse_xml_pdf(xml_content: &str) -> Result<PdfDocumentAST, XmlParseError>
 fn parse_page_node(node: &Node, stylesheet: &HashMap<String, CssStyle>) -> Result<PageDef, XmlParseError> {
     let page_size = node.attribute("page-size").map(|s| s.to_string());
     let orientation = node.attribute("orientation").map(|s| s.to_string());
-    let margin = parse_f32_attr(node, "margin");
+    let margin_top = parse_f32_attr(node, "margin-top").or_else(|| parse_f32_attr(node, "margin"));
+    let margin_bottom = parse_f32_attr(node, "margin-bottom").or_else(|| parse_f32_attr(node, "margin"));
+    let margin_left = parse_f32_attr(node, "margin-left").or_else(|| parse_f32_attr(node, "margin"));
+    let margin_right = parse_f32_attr(node, "margin-right").or_else(|| parse_f32_attr(node, "margin"));
+    let background_image = node.attribute("background-image").map(|s| s.to_string());
 
     let mut elements = Vec::new();
     for child in node.children() {
@@ -128,7 +145,11 @@ fn parse_page_node(node: &Node, stylesheet: &HashMap<String, CssStyle>) -> Resul
     Ok(PageDef {
         page_size,
         orientation,
-        margin,
+        margin_top,
+        margin_bottom,
+        margin_left,
+        margin_right,
+        background_image,
         elements,
     })
 }

@@ -19,6 +19,7 @@ pub struct HaruDocument {
     doc: HPDF_Doc,
     font_cache: HashMap<String, FontHandle>,
     ttf_alias_map: HashMap<String, String>,
+    image_cache: HashMap<String, HPDF_Image>,
 }
 
 impl HaruDocument {
@@ -33,6 +34,7 @@ impl HaruDocument {
                 doc,
                 font_cache: HashMap::new(),
                 ttf_alias_map: HashMap::new(),
+                image_cache: HashMap::new(),
             };
             haru.enable_compression();
             Ok(haru)
@@ -108,12 +110,16 @@ impl HaruDocument {
     }
 
     pub fn load_jpeg_image(&mut self, file_path: &str) -> Result<HPDF_Image, String> {
+        if let Some(&img) = self.image_cache.get(file_path) {
+            return Ok(img);
+        }
         let c_path = CString::new(file_path).map_err(|e| e.to_string())?;
         unsafe {
             let img = HPDF_LoadJpegImageFromFile(self.doc, c_path.as_ptr());
             if img.is_null() {
                 Err(format!("Failed to load JPEG image: {}", file_path))
             } else {
+                self.image_cache.insert(file_path.to_string(), img);
                 Ok(img)
             }
         }
@@ -364,6 +370,15 @@ impl HaruPage {
     pub fn draw_image(&self, image: HPDF_Image, x: f32, y: f32, width: f32, height: f32) {
         unsafe {
             HPDF_Page_DrawImage(self.page, image, x, y, width, height);
+        }
+    }
+
+    /// Measures the rendered width (in points) of a text string using the specified font and size.
+    pub fn measure_text_width(&self, font_handle: &FontHandle, font_size: f32, text: &str) -> f32 {
+        let c_text = encode_text_for_haru(text, font_handle.is_ttf);
+        unsafe {
+            HPDF_Page_SetFontAndSize(self.page, font_handle.font, font_size);
+            HPDF_Page_TextWidth(self.page, c_text.as_ptr())
         }
     }
 }
