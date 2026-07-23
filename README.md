@@ -38,6 +38,8 @@
 - **Comunicación Estándar (std)**: Integración nativa con canalizaciones UNIX (`stdin` -> `stdout`).
 - **Soporte de Acentos**: Transcodificación de caracteres en español (`á, é, í, ó, ú, ñ, Á, É, Í, Ó, Ú, Ñ, ¿, ¡`).
 - **Estilos CSS Integrados**: Soporte para etiquetas `<style>`, clases CSS, `style="..."` inline, `border-radius`, `padding`, `margin` y `opacity`.
+- **Paginación Dinámica (Auto Page-Break)**: Soporte completo de saltos de página automáticos cuando los elementos (textos, párrafos, tablas, contenedores) desbordan el límite de la página.
+- **Fondos Optimizados**: Soporte de imagen de fondo para todas las páginas o páginas específicas, con caché interno de memoria que asegura un archivo final ligero.
 
 ---
 
@@ -100,7 +102,8 @@ Elemento obligatorio que envuelve todo el documento PDF. Configura los valores p
 #### Atributos:
 - `page-size`: Tamaño predeterminado de hoja (`A4`, `LETTER`, `LEGAL`, `A3`, `A5`, `B5`). Defecto: `A4`.
 - `orientation`: Orientación predeterminada (`portrait`, `landscape`). Defecto: `portrait`.
-- `margin`: Margen global de hoja en puntos (ej. `30`). Defecto: `30.0`.
+- `margin`: Margen global de hoja en puntos (ej. `30`). Defecto: `30.0`. Se puede subdividir en `margin-top`, `margin-bottom`, `margin-left` y `margin-right`.
+- `background-image`: Ruta a una imagen JPEG para utilizarla como fondo en todas las páginas generadas de forma automática o estática.
 - `font`: Fuente global predeterminada (`Helvetica`, `Times-Roman`, `Courier` o alias registrado). Defecto: `Helvetica`.
 - `size` / `font-size`: Tamaño de fuente predeterminado. Defecto: `10.0`.
 - `color`: Color de texto global en hexadecimal (ej. `#1e293b`). Defecto: `#000000`.
@@ -163,7 +166,8 @@ Representa una página física dentro del documento PDF. Si se omite, los elemen
 #### Atributos:
 - `page-size`: Sobrescribe el tamaño de hoja para esta página.
 - `orientation`: Sobrescribe la orientación (`portrait` o `landscape`).
-- `margin`: Sobrescribe el margen de esta página en puntos.
+- `margin`: Sobrescribe el margen de esta página en puntos. También soporta `margin-top`, `margin-bottom`, `margin-left` y `margin-right`.
+- `background-image`: Imagen JPEG específica de fondo para esta página, que ignora y reemplaza el fondo global si existe.
 
 ---
 
@@ -216,11 +220,11 @@ Renderiza un bloque de texto plano. Puede posicionarse libremente en coordenadas
 
 ### 7. `<paragraph>` / `<p>` (Párrafo Multi-línea)
 
-Renderiza bloques de texto largo que se dividen y ajustan automáticamente en múltiples líneas según los márgenes laterales de la hoja.
+Renderiza bloques de texto largo que se dividen y ajustan automáticamente en múltiples líneas según los márgenes laterales de la hoja. Si el párrafo es muy largo, genera automáticamente saltos de página continuando el flujo del texto de manera inteligente y manteniendo un espaciado consistente medido realísticamente.
 
 ```xml
 <paragraph font="Helvetica" size="10" color="#475569" margin-bottom="15" line-height="14" align="justify">
-  Este es un párrafo de texto explicativo que se dividirá en varias líneas automáticamente al llegar al margen derecho.
+  Este es un párrafo de texto explicativo que se dividirá en varias líneas automáticamente al llegar al margen derecho. Si el texto excede la altura de la página, continuará en una nueva hoja.
 </paragraph>
 ```
 
